@@ -1,0 +1,6 @@
+{
+  "name": "APIBench",
+  "description": "A local-first, zero-configuration API documentation workbench with pastel earth styling, business rules tracking, cURL generator, and multi-format exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

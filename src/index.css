@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-bench-canvas: #F7F5F0;
+  --color-bench-surface: #FFFFFF;
+  --color-bench-sidebar: #EFECE6;
+  --color-bench-border: #E3DDD3;
+  --color-bench-border-light: #ECE7DF;
+  --color-bench-espresso: #292524;
+  --color-bench-bark: #78716C;
+  --color-bench-muted: #A8A29E;
+
+  --color-bench-clay: #C26D53;
+  --color-bench-clay-hover: #A8543B;
+  --color-bench-clay-light: #F7ECE8;
+  --color-bench-clay-border: #E8BDB1;
+
+  --color-bench-sage: #5E8268;
+  --color-bench-sage-light: #EBF2EC;
+  --color-bench-denim: #4A6E8C;
+  --color-bench-denim-light: #EBF1F6;
+  --color-bench-ochre: #B8833A;
+  --color-bench-ochre-light: #FBF4E8;
+  --color-bench-plum: #7F587D;
+  --color-bench-plum-light: #F4EDF3;
+  --color-bench-terracotta: #B85344;
+  --color-bench-terracotta-light: #FCEFEB;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bench-canvas);
+    color: var(--color-bench-espresso);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom scrollbars with warm earth tone */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9D2C7;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C4BCB0;
+}
+
+/* Scoped Markdown typography */
+.markdown-content h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #292524;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.015em;
+}
+.markdown-content h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #292524;
+  margin-top: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+.markdown-content h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #292524;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+.markdown-content h4, .markdown-content h5, .markdown-content h6 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #57534E;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.markdown-content p {
+  margin-top: 0.4rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: #44403C;
+}
+.markdown-content strong {
+  font-weight: 600;
+  color: #292524;
+}
+.markdown-content em {
+  font-style: italic;
+  color: #57534E;
+}
+.markdown-content ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.6rem;
+  color: #44403C;
+}
+.markdown-content ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.6rem;
+  color: #44403C;
+}
+.markdown-content li {
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  line-height: 1.5;
+}
+.markdown-content code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  background-color: #F4EFEA;
+  color: #A8543B;
+  border: 1px solid #E3DDD3;
+}
+.markdown-content pre {
+  margin-top: 0.6rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #FAF8F5;
+  border: 1px solid #E3DDD3;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #292524;
+  line-height: 1.5;
+}
+.markdown-content blockquote {
+  border-left: 3px solid #C26D53;
+  background-color: #FAF8F5;
+  padding: 0.4rem 0.85rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.6rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+  font-style: italic;
+  color: #78716C;
+}
+.markdown-content table {
+  width: 100%;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  border: 1px solid #E3DDD3;
+}
+.markdown-content th {
+  background-color: #F7F5F0;
+  border: 1px solid #E3DDD3;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  color: #292524;
+}
+.markdown-content td {
+  border: 1px solid #E3DDD3;
+  padding: 0.45rem 0.75rem;
+  color: #44403C;
+}
+.markdown-content a {
+  color: #C26D53;
+  text-decoration: underline;
+  font-weight: 500;
+}
+.markdown-content a:hover {
+  color: #A8543B;
+}
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid #E3DDD3;
+  margin: 1rem 0;
+}
