@@ -10,6 +10,8 @@ interface ApisTableViewProps {
   onAddNewApi: () => void;
   onSelectEndpoint: (id: string) => void;
   onNotification: (msg: string) => void;
+  isStorageConfigured?: boolean;
+  onOpenSettings?: () => void;
 }
 
 export const ApisTableView: React.FC<ApisTableViewProps> = ({
@@ -17,6 +19,8 @@ export const ApisTableView: React.FC<ApisTableViewProps> = ({
   onAddNewApi,
   onSelectEndpoint,
   onNotification,
+  isStorageConfigured = true,
+  onOpenSettings,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMethod, setSelectedMethod] = useState<string>('ALL');
@@ -93,12 +97,33 @@ export const ApisTableView: React.FC<ApisTableViewProps> = ({
         <button
           type="button"
           onClick={onAddNewApi}
-          className="h-9 inline-flex items-center gap-2 px-4 text-xs font-semibold rounded-lg bg-[#C26D53] hover:bg-[#A8543B] text-[#FFFFFF] shadow-xs transition-colors self-start sm:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C26D53]"
+          disabled={!isStorageConfigured}
+          title={!isStorageConfigured ? 'Please configure your OneDrive storage path in Settings before adding APIs.' : undefined}
+          className={`h-9 inline-flex items-center gap-2 px-4 text-xs font-semibold rounded-lg shadow-xs transition-colors self-start sm:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C26D53] ${
+            isStorageConfigured
+              ? 'bg-[#C26D53] hover:bg-[#A8543B] text-[#FFFFFF] cursor-pointer'
+              : 'bg-[#E3DDD3] text-[#78716C] cursor-not-allowed'
+          }`}
         >
           <Plus className="w-4 h-4" />
           <span>ADD NEW API</span>
         </button>
       </div>
+
+      {!isStorageConfigured && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#FDF6F3] border border-[#E8C5B8] text-xs text-[#7C3A26]">
+          <span>Please configure your OneDrive storage path in Settings before adding APIs.</span>
+          {onOpenSettings && (
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              className="px-3 py-1.5 rounded-lg bg-[#C26D53] hover:bg-[#A8543B] text-white font-semibold shrink-0 transition-colors cursor-pointer"
+            >
+              Open Settings
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Filter and Search Bar Controls */}
       <div className="bg-[#FFFFFF] border border-[#E3DDD3] rounded-xl p-4 shadow-xs space-y-3.5">

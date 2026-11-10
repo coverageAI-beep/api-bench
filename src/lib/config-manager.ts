@@ -33,6 +33,7 @@ export interface SettingsResponse extends UserSettings {
   cursorApiKeyMasked: string | null;
   activeStorageDir: string;
   isOneDrive: boolean;
+  isStorageConfigured: boolean;
 }
 
 // Ensure the ~/.apibench directory exists with strict permissions (rwx------)
@@ -77,9 +78,10 @@ export async function getStorageDirectory(): Promise<string> {
       if (resolved.startsWith('~')) {
         resolved = path.join(os.homedir(), resolved.slice(1));
       }
-      resolved = path.resolve(resolved);
-      await fs.mkdir(resolved, { recursive: true });
-      return resolved;
+      const baseDir = path.resolve(resolved);
+      const apisDir = path.join(baseDir, 'apis');
+      await fs.mkdir(apisDir, { recursive: true });
+      return apisDir;
     }
   } catch {
     // Settings file does not exist yet; fall back to default
@@ -109,12 +111,15 @@ export async function saveSettings(newSettings: Partial<UserSettings>): Promise<
     ...newSettings,
   };
 
-  // Ensure target storage path exists
-  let targetPath = (updated.storagePath || DEFAULT_DATA_DIR).trim();
-  if (targetPath.startsWith('~')) {
-    targetPath = path.join(os.homedir(), targetPath.slice(1));
+  // Ensure target storage path and derived apis subpath exist
+  if (updated.storagePath && updated.storagePath.trim()) {
+    let targetPath = updated.storagePath.trim();
+    if (targetPath.startsWith('~')) {
+      targetPath = path.join(os.homedir(), targetPath.slice(1));
+    }
+    const apisDir = path.join(path.resolve(targetPath), 'apis');
+    await fs.mkdir(apisDir, { recursive: true });
   }
-  await fs.mkdir(path.resolve(targetPath), { recursive: true });
 
   await fs.writeFile(SETTINGS_FILE, JSON.stringify(updated, null, 2), { mode: 0o600 });
 }
@@ -131,7 +136,7 @@ export async function getSettings(): Promise<SettingsResponse> {
     defaultContentType: 'application/json',
     globalAuthHeader: '',
     theme: 'earth',
-    storagePath: DEFAULT_DATA_DIR,
+    storagePath: '',
   };
 
   try {
@@ -155,6 +160,8 @@ export async function getSettings(): Promise<SettingsResponse> {
       ? '••••••••'
       : null;
 
+  const isStorageConfigured = Boolean(settings.storagePath && settings.storagePath.trim().length > 0);
+
   return {
     workspaceName: settings.workspaceName || 'Production API Workspace',
     defaultBaseUrl: settings.defaultBaseUrl || 'http://localhost:8080',
@@ -164,11 +171,12 @@ export async function getSettings(): Promise<SettingsResponse> {
     defaultContentType: settings.defaultContentType || 'application/json',
     globalAuthHeader: settings.globalAuthHeader || '',
     theme: settings.theme || 'earth',
-    storagePath: settings.storagePath || DEFAULT_DATA_DIR,
+    storagePath: settings.storagePath || '',
     hasCursorKey: Boolean(cursorKey && cursorKey.length > 0),
     cursorApiKeyMasked,
     activeStorageDir: activeDir,
     isOneDrive,
+    isStorageConfigured,
   };
 }
 

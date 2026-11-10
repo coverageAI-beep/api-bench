@@ -9,7 +9,8 @@ import {
   getEndpointById,
   saveEndpoint,
   deleteEndpoint,
-  subscribeToStorageUpdates
+  subscribeToStorageUpdates,
+  fetchServerSettings
 } from './lib/storage';
 import { Navigation } from './components/Navigation';
 import { DashboardView } from './components/DashboardView';
@@ -24,6 +25,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [viewMode, setViewMode] = useState<ViewMode>({ type: 'dashboard' });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isStorageConfigured, setIsStorageConfigured] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
   // Load endpoints
@@ -32,13 +34,22 @@ export default function App() {
     setEndpoints(list);
   }, []);
 
+  const refreshStorageStatus = useCallback(() => {
+    fetchServerSettings().then((settings) => {
+      if (settings) {
+        setIsStorageConfigured(Boolean(settings.isStorageConfigured));
+      }
+    });
+  }, []);
+
   useEffect(() => {
     refreshEndpoints();
+    refreshStorageStatus();
     const unsubscribe = subscribeToStorageUpdates(() => {
       refreshEndpoints();
     });
     return () => unsubscribe();
-  }, [refreshEndpoints]);
+  }, [refreshEndpoints, refreshStorageStatus]);
 
   const showNotification = (message: string, type: 'success' | 'info' = 'success') => {
     setNotification({ message, type });
@@ -57,6 +68,11 @@ export default function App() {
   };
 
   const handleAddNewApi = () => {
+    if (!isStorageConfigured) {
+      showNotification('Please configure your OneDrive storage path in Settings before adding APIs.', 'info');
+      setIsSettingsOpen(true);
+      return;
+    }
     setActiveTab('apis');
     setViewMode({ type: 'create' });
   };
@@ -118,6 +134,8 @@ export default function App() {
         activeTab={activeTab}
         onSelectTab={handleSelectTab}
         totalEndpoints={endpoints.length}
+        endpoints={endpoints}
+        onSelectEndpoint={handleSelectEndpoint}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
@@ -127,6 +145,7 @@ export default function App() {
         onClose={() => {
           setIsSettingsOpen(false);
           refreshEndpoints();
+          refreshStorageStatus();
         }}
         onNotification={(msg, type) => showNotification(msg, type)}
       />
@@ -140,6 +159,8 @@ export default function App() {
             onAddNewApi={handleAddNewApi}
             onSelectEndpoint={handleSelectEndpoint}
             onNotification={(msg) => showNotification(msg)}
+            isStorageConfigured={isStorageConfigured}
+            onOpenSettings={() => setIsSettingsOpen(true)}
           />
         )}
 
@@ -149,6 +170,8 @@ export default function App() {
             onAddNewApi={handleAddNewApi}
             onSelectEndpoint={handleSelectEndpoint}
             onNotification={(msg) => showNotification(msg)}
+            isStorageConfigured={isStorageConfigured}
+            onOpenSettings={() => setIsSettingsOpen(true)}
           />
         )}
 

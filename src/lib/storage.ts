@@ -33,6 +33,7 @@ export interface ClientSettingsData {
   cursorApiKeyMasked?: string | null;
   activeStorageDir?: string;
   isOneDrive?: boolean;
+  isStorageConfigured?: boolean;
   fileCount?: number;
 }
 

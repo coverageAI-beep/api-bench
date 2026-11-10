@@ -62,7 +62,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     fetchServerSettings().then((settings) => {
       if (settings) {
         setServerSettings(settings);
-        setStoragePath(settings.storagePath || '~/.apibench/data/apis');
+        setStoragePath(settings.storagePath || '');
       }
     });
   }, [isOpen]);
@@ -271,10 +271,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </span>
               </div>
 
-              {/* Storage Path Input */}
+              {/* Base Storage Path Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-[#292524]">
-                  Directory Path
+                  Base Storage Path
                 </label>
                 <input
                   type="text"
@@ -283,43 +283,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   placeholder="e.g. ~/OneDrive/APIBench"
                   className="w-full px-3 py-2 rounded-lg bg-[#FFFFFF] border border-[#E3DDD3] text-xs font-mono text-[#292524] placeholder-[#A8A29E] focus:outline-none focus:border-[#C26D53] focus:ring-1 focus:ring-[#C26D53]"
                 />
-              </div>
-
-              {/* Preset Buttons */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setStoragePath('~/.apibench/data/apis')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                    storagePath === '~/.apibench/data/apis'
-                      ? 'bg-[#C26D53] text-white border-[#C26D53]'
-                      : 'bg-[#FFFFFF] text-[#57534E] border-[#E3DDD3] hover:border-[#D9D2C7]'
-                  }`}
-                >
-                  Local Default
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStoragePath('~/OneDrive/APIBench')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                    storagePath === '~/OneDrive/APIBench'
-                      ? 'bg-[#C26D53] text-white border-[#C26D53]'
-                      : 'bg-[#FFFFFF] text-[#57534E] border-[#E3DDD3] hover:border-[#D9D2C7]'
-                  }`}
-                >
-                  OneDrive (Windows)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStoragePath('~/Library/CloudStorage/OneDrive/APIBench')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                    storagePath === '~/Library/CloudStorage/OneDrive/APIBench'
-                      ? 'bg-[#C26D53] text-white border-[#C26D53]'
-                      : 'bg-[#FFFFFF] text-[#57534E] border-[#E3DDD3] hover:border-[#D9D2C7]'
-                  }`}
-                >
-                  OneDrive (macOS)
-                </button>
+                <p className="text-[11px] text-[#78716C]">
+                  All API specifications and workspace data will be stored inside this base directory.
+                </p>
               </div>
 
               {/* Migrate Checkbox */}

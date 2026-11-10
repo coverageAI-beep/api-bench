@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   LayoutDashboard,
   Network,
   Settings,
+  Search,
+  X,
 } from 'lucide-react';
-import { ActiveTab } from '../types/api';
+import { ActiveTab, ApiEndpoint } from '../types/api';
+import { MethodBadge } from './MethodBadge';
 
 interface NavigationProps {
   activeTab: ActiveTab;
   onSelectTab: (tab: ActiveTab) => void;
   totalEndpoints: number;
+  endpoints: ApiEndpoint[];
+  onSelectEndpoint: (id: string) => void;
   onOpenSettings: () => void;
 }
 
@@ -17,8 +22,22 @@ export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onSelectTab,
   totalEndpoints,
+  endpoints,
+  onSelectEndpoint,
   onOpenSettings,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredEndpoints = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return endpoints.filter(
+      (ep) =>
+        ep.title.toLowerCase().includes(q) ||
+        ep.path.toLowerCase().includes(q) ||
+        ep.method.toLowerCase().includes(q)
+    );
+  }, [endpoints, searchQuery]);
   return (
     <aside className="w-64 bg-[#EFECE6] border-r border-[#E3DDD3] flex flex-col justify-between shrink-0 select-none min-h-screen">
       {/* Top Brand & Tabs */}
@@ -36,6 +55,64 @@ export const Navigation: React.FC<NavigationProps> = ({
               <p className="text-[11px] text-[#78716C] font-mono">Personal API Workbench</p>
             </div>
           </div>
+        </div>
+
+        {/* Global Search Bar */}
+        <div className="px-3 pt-3 pb-1">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-[#78716C] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search APIs..."
+              aria-label="Search APIs by title, path, or HTTP method"
+              className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-[#FFFFFF] border border-[#E3DDD3] text-xs text-[#292524] placeholder-[#A8A29E] focus:outline-none focus:border-[#C26D53] focus:ring-1 focus:ring-[#C26D53]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#78716C] hover:text-[#292524]"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Search Results */}
+          {searchQuery.trim().length > 0 && (
+            <div className="mt-2 max-h-60 overflow-y-auto rounded-lg bg-[#FFFFFF] border border-[#E3DDD3] shadow-sm divide-y divide-[#E3DDD3]/60">
+              {filteredEndpoints.length === 0 ? (
+                <div className="px-3 py-2.5 text-[11px] text-[#78716C] text-center">
+                  No matching APIs
+                </div>
+              ) : (
+                filteredEndpoints.map((ep) => (
+                  <button
+                    key={ep.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectEndpoint(ep.id);
+                      setSearchQuery('');
+                    }}
+                    className="w-full text-left px-2.5 py-2 hover:bg-[#FAF8F5] transition-colors flex flex-col gap-1 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <MethodBadge method={ep.method} />
+                      <span className="text-xs font-semibold text-[#292524] truncate">
+                        {ep.title}
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-mono text-[#78716C] truncate">
+                      {ep.path}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* Navigation Tabs */}

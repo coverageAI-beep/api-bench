@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ArrowLeft,
   Copy,
@@ -15,6 +15,9 @@ import {
   Code2,
   Download,
   FileText,
+  ChevronDown,
+  FileJson,
+  FileCode,
 } from 'lucide-react';
 import { ApiEndpoint } from '../types/api';
 import { MethodBadge } from './MethodBadge';
@@ -22,7 +25,12 @@ import { JsonCodeEditor } from './JsonCodeEditor';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { generateCurlCommand } from '../lib/curl';
 import { getLocalPreferences } from '../lib/storage';
-import { exportSingleEndpointToMarkdown, downloadFile } from '../lib/exporters';
+import {
+  exportSingleEndpointToMarkdown,
+  exportToJson,
+  exportToOpenAPI,
+  downloadFile,
+} from '../lib/exporters';
 
 interface ApiDetailViewProps {
   endpoint: ApiEndpoint;
@@ -47,7 +55,19 @@ export const ApiDetailView: React.FC<ApiDetailViewProps> = ({
   const [markdownScope, setMarkdownScope] = useState<'summary' | 'full'>('summary');
   const [activeResponseIdx, setActiveResponseIdx] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const preferences = getLocalPreferences();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const curlCommand = generateCurlCommand(endpoint, preferences.defaultBaseUrl);
   const fullEndpointMarkdown = exportSingleEndpointToMarkdown(endpoint);
@@ -120,15 +140,62 @@ export const ApiDetailView: React.FC<ApiDetailViewProps> = ({
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={handleExportMarkdown}
-            className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-semibold rounded-lg bg-[#FFFFFF] text-[#292524] border border-[#E3DDD3] shadow-2xs hover:bg-[#F7F5F0] hover:border-[#D9D2C7] transition-colors"
-            title="Export Markdown documentation"
-          >
-            <Download className="w-3.5 h-3.5 text-[#78716C]" />
-            <span>Export .md</span>
-          </button>
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              type="button"
+              onClick={() => setShowExportMenu((prev) => !prev)}
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-semibold rounded-lg bg-[#FFFFFF] text-[#292524] border border-[#E3DDD3] shadow-2xs hover:bg-[#F7F5F0] hover:border-[#D9D2C7] transition-colors cursor-pointer"
+              title="Export endpoint definition"
+            >
+              <Download className="w-3.5 h-3.5 text-[#78716C]" />
+              <span>Export</span>
+              <ChevronDown className="w-3.5 h-3.5 text-[#78716C]" />
+            </button>
+
+            {showExportMenu && (
+              <div className="absolute right-0 mt-1.5 w-48 rounded-xl bg-[#FFFFFF] border border-[#E3DDD3] shadow-lg py-1.5 z-30">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleExportMarkdown();
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full px-3.5 py-2 text-left text-xs font-medium text-[#292524] hover:bg-[#FAF8F5] flex items-center gap-2.5 cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#78716C]" />
+                  <span>Markdown (.md)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const content = exportToJson([endpoint]);
+                    const slug = `${endpoint.method.toLowerCase()}-${endpoint.path.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+                    downloadFile(`${slug || 'endpoint'}.json`, content, 'application/json');
+                    onNotification(`Exported ${endpoint.title} as JSON`);
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full px-3.5 py-2 text-left text-xs font-medium text-[#292524] hover:bg-[#FAF8F5] flex items-center gap-2.5 cursor-pointer"
+                >
+                  <FileJson className="w-3.5 h-3.5 text-[#78716C]" />
+                  <span>JSON (.json)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const content = exportToOpenAPI([endpoint], endpoint.title);
+                    const slug = `${endpoint.method.toLowerCase()}-${endpoint.path.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+                    downloadFile(`${slug || 'endpoint'}-openapi.json`, content, 'application/json');
+                    onNotification(`Exported ${endpoint.title} as OpenAPI 3.1`);
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full px-3.5 py-2 text-left text-xs font-medium text-[#292524] hover:bg-[#FAF8F5] flex items-center gap-2.5 cursor-pointer"
+                >
+                  <FileCode className="w-3.5 h-3.5 text-[#78716C]" />
+                  <span>OpenAPI 3.1 (.json)</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             type="button"
